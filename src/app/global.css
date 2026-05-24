@@ -1,0 +1,14 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+.hero-name-text span {
+  vertical-align: middle; /* Adjust this value as needed for precise alignment */
+}
