@@ -29,6 +29,7 @@
     "gray-matter": "^4.0.3",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.395.0",
+    "mongodb": "^7.2.0",
     "mongoose": "^8.16.5",
     "multer": "^2.0.2",
     "next": "14.2.4",
