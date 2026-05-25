@@ -15,6 +15,9 @@ import Work from "@/components/Work"
 import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import AdminShell from "@/components/admin/AdminShell"
+import BlurFade from "@/components/magicui/blur-fade"
+import { cn } from "@/lib/utils"
 
 const Page = () => {
   const [active, setActive] = useState(0)
@@ -357,53 +360,55 @@ const Page = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p>Loading admin panel...</p>
-        </div>
+      <div className="admin-panel-page min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     )
   }
 
   if (!isAuthenticated) {
-    // This case should ideally be handled by the router.push("/login") above,
-    // but as a fallback or if there's a slight delay in redirection.
     return null
   }
 
+  const tabs = ["Profile", "Contact", "Work", "Education", "Hackathons", "Projects"]
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-black dark:text-white">Portfolio Admin Panel</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Manage your portfolio content</p>
-          <Button onClick={handleLogout} variant="outline" className="mt-4 bg-transparent">
-            Logout
-          </Button>
+    <AdminShell
+      title="Portfolio Admin"
+      subtitle="Manage your full portfolio content"
+      onLogout={handleLogout}
+    >
+      <BlurFade delay={0.05} inView>
+        <div className="flex flex-wrap justify-center gap-3 mb-8">
+          {tabs.map((tab, index) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActive(index)}
+              className={cn(
+                "relative px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 overflow-hidden",
+                active === index
+                  ? "text-white shadow-lg shadow-primary/25"
+                  : "bg-card/50 text-muted-foreground border border-border/50 hover:text-foreground hover:bg-card/80 backdrop-blur-sm",
+              )}
+            >
+              {active === index && (
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-violet-600 via-primary to-indigo-600 dark:from-violet-500 dark:via-primary dark:to-indigo-500"
+                  aria-hidden
+                />
+              )}
+              <span className="relative z-10">{tab}</span>
+            </button>
+          ))}
         </div>
+      </BlurFade>
 
-        {/* Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="flex space-x-2 bg-white dark:bg-black rounded-lg p-2 shadow-md">
-            {["Profile", "Contact", "Work", "Education", "Hackathons", "Projects"].map((tab, index) => (
-              <button
-                key={tab}
-                onClick={() => setActive(index)}
-                className={`px-4 py-2 rounded-md transition-colors ${
-                  active === index
-                    ? "bg-black dark:bg-white text-white dark:text-black"
-                    : "text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Content Sections */}
-        <div className="max-w-4xl mx-auto">
+      <BlurFade delay={0.15} inView key={active}>
+        <div className="admin-surface relative p-6 sm:p-8">
+          {/* Subtle inner glow */}
+          <div className="pointer-events-none absolute inset-0 rounded-3xl border border-primary/20 bg-primary/[0.02]" aria-hidden />
+          
           {active === 0 && <Profile profile={profile} setProfile={setProfile} setActive={setActive} active={active} />}
           {active === 1 && <Contact contact={contact} setContact={setContact} active={active} setActive={setActive} />}
           {active === 2 && <Work work={work} setWork={setWork} active={active} setActive={setActive} />}
@@ -417,53 +422,62 @@ const Page = () => {
             <Projects projects={projects} active={active} setActive={setActive} setProjects={setProjects} />
           )}
         </div>
+      </BlurFade>
 
-        {/* Save Button - Show on all sections */}
-        <div className="flex justify-center mt-8">
-          <button
+      <BlurFade delay={0.25} inView>
+        <div className="flex flex-col items-center gap-4 mt-10">
+          <Button
             onClick={handleSavePortfolio}
             disabled={saving}
-            className="px-8 py-3 text-lg bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center gap-2 font-semibold"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Processing Images & Saving...
-              </>
-            ) : (
-              "💾 Save Complete Portfolio"
+            className={cn(
+              "relative h-12 px-8 rounded-xl text-base font-semibold overflow-hidden",
+              "bg-gradient-to-r from-violet-600 via-primary to-indigo-600",
+              "dark:from-violet-500 dark:via-[hsl(262,85%,65%)] dark:to-indigo-500",
+              "text-white dark:text-white",
+              "hover:opacity-95 dark:hover:brightness-110",
+              "shadow-lg shadow-primary/20 dark:shadow-primary/30",
+              "transition-all duration-300",
             )}
-          </button>
+          >
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              {saving ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save complete portfolio"
+              )}
+            </span>
+          </Button>
+
+        <div className="flex items-center gap-2">
+          {tabs.map((step, i) => (
+            <div
+              key={step}
+              className={cn(
+                "w-2.5 h-2.5 rounded-full transition-colors",
+                i <= active ? "bg-primary" : "bg-muted",
+              )}
+            />
+          ))}
+          <span className="ml-2 text-sm text-muted-foreground">
+            Step {active + 1} of 6 — {tabs[active]}
+          </span>
         </div>
 
-        {/* Progress Indicator */}
-        <div className="flex justify-center mt-6">
-          <div className="flex space-x-2">
-            {[0, 1, 2, 3, 4, 5].map((step) => (
-              <div
-                key={step}
-                className={`w-3 h-3 rounded-full ${step <= active ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600"}`}
-              />
-            ))}
+          <div className="w-full max-w-2xl rounded-xl border border-primary/20 bg-primary/5 dark:bg-primary/10 backdrop-blur-md p-5 text-sm text-foreground/80 space-y-2 mt-4 shadow-sm">
+            <p className="font-semibold text-foreground flex items-center gap-2">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary text-xs">💡</span>
+              Tips
+            </p>
+            <p className="pl-7">• Fill each section, then save to update MongoDB.</p>
+            <p className="pl-7">• Images and videos upload to Cloudinary automatically.</p>
+            <p className="pl-7">• For projects only, use the Latest Work tab in the header.</p>
           </div>
-          <p className="ml-4 text-sm text-gray-600 dark:text-gray-400">
-            Step {active + 1} of 6 - {["Profile", "Contact", "Work", "Education", "Hackathons", "Projects"][active]}
-          </p>
         </div>
-
-        {/* Instructions */}
-        <div className="max-w-2xl mx-auto mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">Instructions:</h3>
-          <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-            <li>• Fill out each section completely</li>
-            <li>• All images will be automatically uploaded to Cloudinary when you save</li>
-            <li>• You can save at any time - the system will process all base64 images</li>
-            <li>• If you have existing data, it will be loaded automatically</li>
-            <li>• The save will update your portfolio in the database</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+      </BlurFade>
+    </AdminShell>
   )
 }
 

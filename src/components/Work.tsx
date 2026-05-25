@@ -84,18 +84,18 @@ const Work: React.FC<WorkProps> = ({ work, setWork, active, setActive }) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-black shadow-md rounded-xl space-y-6">
-      <h1 className="text-2xl font-bold text-center text-black dark:text-white">Work Experience</h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground">Work Experience</h1>
       <div className="space-y-4">
         {work.map((w, index) => {
           const isOpen = openExperience === index
           return (
             <div
               key={index}
-              className="border border-gray-300 dark:border-gray-700 rounded-md p-4 bg-gray-50 dark:bg-gray-900 space-y-3"
+              className="admin-section-card"
             >
               <div className="flex justify-between items-center mb-2">
-                <div className="font-semibold text-black dark:text-white">Experience {index + 1}</div>
+                <div className="font-semibold text-foreground">Experience {index + 1}</div>
                 <div
                   className="text-sm text-blue-600 cursor-pointer hover:underline"
                   onClick={() => setOpenExperience(isOpen ? null : index)}
@@ -107,41 +107,41 @@ const Work: React.FC<WorkProps> = ({ work, setWork, active, setActive }) => {
                 <div className="space-y-3">
                   {/* Company */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white">Company Name</label>
+                    <label className="block text-sm font-medium text-foreground">Company Name</label>
                     <input
                       type="text"
                       value={w.company}
                       onChange={(e) => handleWork(index, "company", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                      className="admin-input"
                       placeholder="Company name"
                     />
                   </div>
                   {/* Website */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white">Company Website</label>
+                    <label className="block text-sm font-medium text-foreground">Company Website</label>
                     <input
                       type="url"
                       value={w.link}
                       onChange={(e) => handleWork(index, "link", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                      className="admin-input"
                       placeholder="https://company.com"
                     />
                   </div>
                   {/* Location */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white">Location</label>
+                    <label className="block text-sm font-medium text-foreground">Location</label>
                     <input
                       type="text"
                       value={w.location}
                       onChange={(e) => handleWork(index, "location", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                      className="admin-input"
                       placeholder="City, Country"
                     />
                   </div>
                   {/* Dates */}
                   <div className="flex gap-4">
                     <div className="w-full">
-                      <label className="block text-sm font-medium text-black dark:text-white">Start Date</label>
+                      <label className="block text-sm font-medium text-foreground">Start Date</label>
                       <DatePicker
                         views={["month", "year"]}
                         value={w.start ? dayjs(w.start, "MMMM YYYY") : null}
@@ -154,13 +154,13 @@ const Work: React.FC<WorkProps> = ({ work, setWork, active, setActive }) => {
                         slotProps={{
                           textField: {
                             className:
-                              "w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white",
+                              "admin-input",
                           },
                         }}
                       />
                     </div>
                     <div className="w-full">
-                      <label className="block text-sm font-medium text-black dark:text-white">End Date</label>
+                      <label className="block text-sm font-medium text-foreground">End Date</label>
                       <DatePicker
                         views={["month", "year"]}
                         value={w.end ? dayjs(w.end, "MMMM YYYY") : null}
@@ -173,7 +173,7 @@ const Work: React.FC<WorkProps> = ({ work, setWork, active, setActive }) => {
                         slotProps={{
                           textField: {
                             className:
-                              "w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white",
+                              "admin-input",
                           },
                         }}
                       />
@@ -181,16 +181,16 @@ const Work: React.FC<WorkProps> = ({ work, setWork, active, setActive }) => {
                   </div>
                   {/* Logo Upload */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white mb-2">Company Logo</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Company Logo</label>
                     <ImageUpload currentImage={w.logoUrl} onImageChange={(image) => handleImageChange(index, image)} />
                   </div>
                   {/* Description */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white">Job Description</label>
+                    <label className="block text-sm font-medium text-foreground">Job Description</label>
                     <textarea
                       value={w.description}
                       onChange={(e) => handleWork(index, "description", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                      className="admin-input"
                       placeholder="Describe your role and responsibilities"
                       rows={4}
                     />
@@ -212,7 +212,7 @@ const Work: React.FC<WorkProps> = ({ work, setWork, active, setActive }) => {
         {/* Add More */}
         <button
           onClick={addNewWork}
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+          className="w-full bg-primary text-primary-foreground py-2 rounded-full hover:bg-primary/90 transition duration-200 font-medium"
         >
           + Add More Experience
         </button>
@@ -221,7 +221,7 @@ const Work: React.FC<WorkProps> = ({ work, setWork, active, setActive }) => {
       <div className="pt-6 flex justify-between">
         <button
           onClick={handleBack}
-          className="bg-black dark:bg-white text-white dark:text-black py-2 px-4 rounded-md hover:opacity-90 transition duration-200 font-semibold"
+          className="bg-secondary text-secondary-foreground py-2 px-4 rounded-full hover:bg-secondary/80 transition duration-200 font-semibold"
         >
           ← Back
         </button>
@@ -230,8 +230,8 @@ const Work: React.FC<WorkProps> = ({ work, setWork, active, setActive }) => {
           disabled={isDisabled}
           className={`py-2 px-4 rounded-md font-semibold transition duration-200 ${
             isDisabled
-              ? "bg-gray-400 cursor-not-allowed text-white"
-              : "bg-black dark:bg-white text-white dark:text-black hover:opacity-90"
+              ? "bg-muted cursor-not-allowed text-muted-foreground"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
           }`}
         >
           Next →

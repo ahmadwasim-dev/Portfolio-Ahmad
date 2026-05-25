@@ -63,17 +63,17 @@ const Education: React.FC<EducationProps> = ({ education, setEducation, active, 
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-black shadow-md rounded-xl space-y-6">
-      <h1 className="text-2xl font-bold text-center text-black dark:text-white">Education Details</h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground">Education Details</h1>
       {education.map((edu, index) => {
         const isOpen = openIndex === index
         return (
           <div
             key={index}
-            className="border border-gray-300 dark:border-gray-700 rounded-md p-4 bg-gray-50 dark:bg-gray-900 space-y-3"
+            className="admin-section-card"
           >
             <div className="flex justify-between items-center mb-2">
-              <div className="font-semibold text-black dark:text-white">Education {index + 1}</div>
+              <div className="font-semibold text-foreground">Education {index + 1}</div>
               <div
                 className="text-sm text-blue-600 cursor-pointer hover:underline"
                 onClick={() => setOpenIndex(isOpen ? null : index)}
@@ -84,38 +84,38 @@ const Education: React.FC<EducationProps> = ({ education, setEducation, active, 
             {isOpen && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">School/University</label>
+                  <label className="block text-sm font-medium text-foreground">School/University</label>
                   <input
                     type="text"
                     value={edu.school}
                     onChange={(e) => updateEducation(index, "school", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                     placeholder="Enter school name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">School Website</label>
+                  <label className="block text-sm font-medium text-foreground">School Website</label>
                   <input
                     type="url"
                     value={edu.link}
                     onChange={(e) => updateEducation(index, "link", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                     placeholder="https://school.edu"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Degree</label>
+                  <label className="block text-sm font-medium text-foreground">Degree</label>
                   <input
                     type="text"
                     value={edu.degree}
                     onChange={(e) => updateEducation(index, "degree", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                     placeholder="e.g. Bachelor of Computer Science"
                   />
                 </div>
                 <div className="flex gap-4">
                   <div className="w-full">
-                    <label className="block text-sm font-medium text-black dark:text-white">Start Date</label>
+                    <label className="block text-sm font-medium text-foreground">Start Date</label>
                     <DatePicker
                       views={["month", "year"]}
                       value={edu.start ? dayjs(edu.start, "MMMM YYYY") : null}
@@ -127,13 +127,13 @@ const Education: React.FC<EducationProps> = ({ education, setEducation, active, 
                       slotProps={{
                         textField: {
                           className:
-                            "w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white",
+                            "admin-input",
                         },
                       }}
                     />
                   </div>
                   <div className="w-full">
-                    <label className="block text-sm font-medium text-black dark:text-white">End Date</label>
+                    <label className="block text-sm font-medium text-foreground">End Date</label>
                     <DatePicker
                       views={["month", "year"]}
                       value={edu.end ? dayjs(edu.end, "MMMM YYYY") : null}
@@ -145,14 +145,14 @@ const Education: React.FC<EducationProps> = ({ education, setEducation, active, 
                       slotProps={{
                         textField: {
                           className:
-                            "w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white",
+                            "admin-input",
                         },
                       }}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white mb-2">School Logo</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">School Logo</label>
                   <ImageUpload
                     currentImage={edu.logoUrl}
                     onImageChange={(image) => updateEducation(index, "logoUrl", image)}
@@ -173,14 +173,14 @@ const Education: React.FC<EducationProps> = ({ education, setEducation, active, 
       })}
       <button
         onClick={addEducation}
-        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+        className="w-full bg-primary text-primary-foreground py-2 rounded-full hover:bg-primary/90 transition duration-200 font-medium"
       >
         + Add More Education
       </button>
       <div className="pt-6 flex justify-between">
         <button
           onClick={handleBack}
-          className="bg-black dark:bg-white text-white dark:text-black py-2 px-4 rounded-md hover:opacity-90 transition duration-200 font-semibold"
+          className="bg-secondary text-secondary-foreground py-2 px-4 rounded-full hover:bg-secondary/80 transition duration-200 font-semibold"
         >
           ← Back
         </button>
@@ -189,8 +189,8 @@ const Education: React.FC<EducationProps> = ({ education, setEducation, active, 
           disabled={isDisabled}
           className={`py-2 px-4 rounded-md font-semibold transition duration-200 ${
             isDisabled
-              ? "bg-gray-400 cursor-not-allowed text-white"
-              : "bg-black dark:bg-white text-white dark:text-black hover:opacity-90"
+              ? "bg-muted cursor-not-allowed text-muted-foreground"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
           }`}
         >
           Next →

@@ -1,4 +1,4 @@
-import Navbar from "@/components/navbar";
+import { ConditionalSiteChrome } from "@/components/ConditionalSiteChrome";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DATA } from "@/data/resume";
@@ -69,8 +69,7 @@ export default function RootLayout({
             <Localization>
               <TooltipProvider delayDuration={0}>
                 {children}
-                <Navbar />
-                <CursorFollower />
+                <ConditionalSiteChrome />
               </TooltipProvider>
             </Localization>
           </ThemeProvider>

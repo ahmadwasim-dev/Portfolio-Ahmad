@@ -65,17 +65,17 @@ const Hackathons: React.FC<HackathonsProps> = ({ hackathons, setHackathons, acti
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-black shadow-md rounded-xl space-y-6">
-      <h1 className="text-2xl font-bold text-center text-black dark:text-white">Hackathon Participation</h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground">Hackathon Participation</h1>
       {hackathons.map((hack, index) => {
         const isOpen = openIndex === index
         return (
           <div
             key={index}
-            className="border border-gray-300 dark:border-gray-700 rounded-md p-4 bg-gray-50 dark:bg-gray-900 space-y-3"
+            className="admin-section-card"
           >
             <div className="flex justify-between items-center mb-2">
-              <div className="font-semibold text-black dark:text-white">Hackathon {index + 1}</div>
+              <div className="font-semibold text-foreground">Hackathon {index + 1}</div>
               <div
                 className="text-sm text-blue-600 cursor-pointer hover:underline"
                 onClick={() => setOpenIndex(isOpen ? null : index)}
@@ -86,27 +86,27 @@ const Hackathons: React.FC<HackathonsProps> = ({ hackathons, setHackathons, acti
             {isOpen && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Hackathon Title</label>
+                  <label className="block text-sm font-medium text-foreground">Hackathon Title</label>
                   <input
                     type="text"
                     value={hack.title}
                     onChange={(e) => updateHackathon(index, "title", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                     placeholder="Enter hackathon name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Hackathon Website</label>
+                  <label className="block text-sm font-medium text-foreground">Hackathon Website</label>
                   <input
                     type="url"
                     value={hack.link}
                     onChange={(e) => updateHackathon(index, "link", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                     placeholder="https://hackathon.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Date</label>
+                  <label className="block text-sm font-medium text-foreground">Date</label>
                   <DatePicker
                     views={["month", "year"]}
                     value={hack.dates ? dayjs(hack.dates, "MMMM YYYY") : null}
@@ -118,33 +118,33 @@ const Hackathons: React.FC<HackathonsProps> = ({ hackathons, setHackathons, acti
                     slotProps={{
                       textField: {
                         className:
-                          "w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white",
+                          "admin-input",
                       },
                     }}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Location</label>
+                  <label className="block text-sm font-medium text-foreground">Location</label>
                   <input
                     type="text"
                     value={hack.location}
                     onChange={(e) => updateHackathon(index, "location", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                     placeholder="City, Country or Online"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Description</label>
+                  <label className="block text-sm font-medium text-foreground">Description</label>
                   <textarea
                     value={hack.description}
                     onChange={(e) => updateHackathon(index, "description", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                     placeholder="Describe your project or achievement"
                     rows={3}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white mb-2">Hackathon Image</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Hackathon Image</label>
                   <ImageUpload
                     currentImage={hack.image}
                     onImageChange={(image) => updateHackathon(index, "image", image)}
@@ -165,14 +165,14 @@ const Hackathons: React.FC<HackathonsProps> = ({ hackathons, setHackathons, acti
       })}
       <button
         onClick={addHackathon}
-        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+        className="w-full bg-primary text-primary-foreground py-2 rounded-full hover:bg-primary/90 transition duration-200 font-medium"
       >
         + Add More Hackathon
       </button>
       <div className="pt-6 flex justify-between">
         <button
           onClick={handleBack}
-          className="bg-black dark:bg-white text-white dark:text-black py-2 px-4 rounded-md hover:opacity-90 transition duration-200 font-semibold"
+          className="bg-secondary text-secondary-foreground py-2 px-4 rounded-full hover:bg-secondary/80 transition duration-200 font-semibold"
         >
           ← Back
         </button>
@@ -181,8 +181,8 @@ const Hackathons: React.FC<HackathonsProps> = ({ hackathons, setHackathons, acti
           disabled={isDisabled}
           className={`py-2 px-4 rounded-md font-semibold transition duration-200 ${
             isDisabled
-              ? "bg-gray-400 cursor-not-allowed text-white"
-              : "bg-black dark:bg-white text-white dark:text-black hover:opacity-90"
+              ? "bg-muted cursor-not-allowed text-muted-foreground"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
           }`}
         >
           Next →

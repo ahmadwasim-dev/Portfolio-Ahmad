@@ -42,13 +42,13 @@ export default function ProjectsSection({ data, delay }: ProjectsSectionProps) {
             .map((project, id) => (
               <BlurFade key={project.title} delay={delay * 15 + id * 0.05}>
                 <ProjectCard
-                  link={project.link}
+                  href={project.link}
                   key={project.title}
                   title={project.title}
                   description={project.description}
                   dates={project.dates}
                   tags={project.technologies}
-                  video={project.video.url}
+                  video={project.video?.url}
                   links={project.links}
                   projectId={(project as any)._id}
                   hasCaseStudyVideo={!!project.caseStudy?.youtubeVideoUrl}

@@ -74,45 +74,45 @@ const Contact: React.FC<ContactProps> = ({ contact, setContact, active, setActiv
     contact.social.some((s) => s.name.trim() === "" || s.url.trim() === "" || s.icon.url === "")
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white dark:bg-black shadow-md rounded-xl space-y-6">
-      <h1 className="text-2xl font-bold text-center text-black dark:text-white">Contact Details</h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground">Contact Details</h1>
 
       {/* Email */}
       <div>
-        <label className="block mb-2 text-sm font-medium text-black dark:text-white">Email</label>
+        <label className="block mb-2 text-sm font-medium text-foreground">Email</label>
         <input
           type="email"
           value={contact.email}
           onChange={(e) => setContact({ ...contact, email: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white"
+          className="admin-input"
           placeholder="Enter your email"
         />
       </div>
 
       {/* Telephone */}
       <div>
-        <label className="block mb-2 text-sm font-medium text-black dark:text-white">Telephone</label>
+        <label className="block mb-2 text-sm font-medium text-foreground">Telephone</label>
         <input
           type="tel"
           value={contact.tel}
           onChange={(e) => setContact({ ...contact, tel: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-black dark:text-white"
+          className="admin-input"
           placeholder="Enter your telephone number"
         />
       </div>
 
       {/* Social Links */}
       <div className="space-y-4">
-        <label className="block text-lg font-semibold text-black dark:text-white">Social Links</label>
+        <label className="block text-lg font-semibold text-foreground">Social Links</label>
         {contact.social.map((social, index) => {
           const isOpen = openSocial === index
           return (
             <div
               key={index}
-              className="border border-gray-300 dark:border-gray-700 rounded-md p-4 bg-gray-50 dark:bg-gray-900 space-y-3"
+              className="admin-section-card"
             >
               <div className="flex justify-between items-center mb-2">
-                <div className="font-semibold text-black dark:text-white">Social {index + 1}</div>
+                <div className="font-semibold text-foreground">Social {index + 1}</div>
                 <div
                   className="text-sm text-blue-600 cursor-pointer hover:underline"
                   onClick={() => setOpenSocial(isOpen ? null : index)}
@@ -124,29 +124,29 @@ const Contact: React.FC<ContactProps> = ({ contact, setContact, active, setActiv
                 <div className="space-y-3">
                   {/* Name */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white">Social Name</label>
+                    <label className="block text-sm font-medium text-foreground">Social Name</label>
                     <input
                       type="text"
                       value={social.name}
                       onChange={(e) => updateSocial(index, "name", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                      className="admin-input"
                       placeholder="e.g. LinkedIn"
                     />
                   </div>
                   {/* URL */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white">Social URL</label>
+                    <label className="block text-sm font-medium text-foreground">Social URL</label>
                     <input
                       type="url"
                       value={social.url}
                       onChange={(e) => updateSocial(index, "url", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                      className="admin-input"
                       placeholder="https://..."
                     />
                   </div>
                   {/* Icon Upload */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white mb-2">Social Icon</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Social Icon</label>
                     <ImageUpload
                       currentImage={social.icon}
                       onImageChange={(image) => updateSocial(index, "icon", image)}
@@ -161,7 +161,7 @@ const Contact: React.FC<ContactProps> = ({ contact, setContact, active, setActiv
                       onChange={(e) => updateSocial(index, "navbar", e.target.checked)}
                       className="rounded"
                     />
-                    <label htmlFor={`navbar-${index}`} className="text-sm text-black dark:text-white">
+                    <label htmlFor={`navbar-${index}`} className="text-sm text-foreground">
                       Show in navigation bar
                     </label>
                   </div>
@@ -182,7 +182,7 @@ const Contact: React.FC<ContactProps> = ({ contact, setContact, active, setActiv
         {/* Add Social */}
         <button
           onClick={addSocial}
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+          className="w-full bg-primary text-primary-foreground py-2 rounded-full hover:bg-primary/90 transition duration-200 font-medium"
         >
           + Add More Social Link
         </button>
@@ -192,7 +192,7 @@ const Contact: React.FC<ContactProps> = ({ contact, setContact, active, setActiv
       <div className="pt-6 flex justify-between">
         <button
           onClick={handleback}
-          className="bg-black dark:bg-white text-white dark:text-black py-2 px-4 rounded-md hover:opacity-90 transition duration-200 font-semibold"
+          className="bg-secondary text-secondary-foreground py-2 px-4 rounded-full hover:bg-secondary/80 transition duration-200 font-semibold"
         >
           ← Back
         </button>
@@ -201,8 +201,8 @@ const Contact: React.FC<ContactProps> = ({ contact, setContact, active, setActiv
           disabled={isDisabled}
           className={`py-2 px-4 rounded-md font-semibold transition duration-200 ${
             isDisabled
-              ? "bg-gray-400 cursor-not-allowed text-white"
-              : "bg-black dark:bg-white text-white dark:text-black hover:opacity-90"
+              ? "bg-muted cursor-not-allowed text-muted-foreground"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
           }`}
         >
           Next →

@@ -107,8 +107,8 @@ const VideoUpload:React.FC<VideoUploadProps>=({videoInfo,projectIndex,updateProj
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <Card>
+    <div className="w-full">
+      <Card className="border-border/40 bg-card/50 backdrop-blur-sm rounded-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Video className="w-5 h-5" />

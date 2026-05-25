@@ -66,6 +66,45 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
     setProjects(updatedProjects)
   }
 
+  const deleteProject = (index: number) => {
+    if (!confirm(`Delete "${projects[index].title || `Project ${index + 1}`}"?`)) return
+    if (projects.length === 1) {
+      setProjects([
+        {
+          title: "",
+          link: "",
+          dates: "",
+          description: "",
+          technologies: [],
+          links: [{ type: "", link: "" }],
+          video: {
+            public_id: "",
+            url: "",
+            duration: 0,
+            width: 0,
+            height: 0,
+            format: "",
+            bytes: 0,
+          },
+          caseStudy: {
+            youtubeVideoUrl: "",
+            projectOverview: "",
+            keyFeatures: [],
+            databaseArchitectureImage: { public_id: "", url: "" },
+            systemArchitectureImage: { public_id: "", url: "" },
+            systemArchitecture: [{ title: "", description: "" }],
+            challengesAndSolutions: [{ title: "", challenge: "", solution: "" }],
+          },
+        },
+      ])
+      setOpenIndex(0)
+      return
+    }
+    const updated = projects.filter((_, i) => i !== index)
+    setProjects(updated)
+    setOpenIndex(Math.min(index, updated.length - 1))
+  }
+
   const addProject = () => {
     const last = projects[projects.length - 1]
     if (
@@ -258,46 +297,56 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-black shadow-md rounded-xl space-y-6">
-      <h1 className="text-2xl font-bold text-center text-black dark:text-white">Projects</h1>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground">Projects</h1>
       {projects.map((p, i) => {
         const isOpen = openIndex === i
         return (
           <div
             key={i}
-            className="border border-gray-300 dark:border-gray-700 rounded-md p-4 bg-gray-50 dark:bg-gray-900 space-y-3"
+            className="admin-section-card"
           >
-            <div className="flex justify-between items-center mb-2">
-              <div className="font-semibold text-black dark:text-white">Project {i + 1}</div>
-              <div
-                className="text-sm text-blue-600 cursor-pointer hover:underline"
-                onClick={() => setOpenIndex(isOpen ? null : i)}
-              >
-                {isOpen ? "Hide ▲" : "Show ▼"}
+            <div className="flex justify-between items-center mb-2 gap-2">
+              <div className="font-semibold text-foreground">Project {i + 1}</div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => deleteProject(i)}
+                  className="text-sm text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  className="text-sm text-blue-600 hover:underline"
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                >
+                  {isOpen ? "Hide ▲" : "Show ▼"}
+                </button>
               </div>
             </div>
             {isOpen && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Title</label>
+                  <label className="block text-sm font-medium text-foreground">Title</label>
                   <input
                     type="text"
                     value={p.title}
                     onChange={(e) => handleProjects(i, "title", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Link</label>
+                  <label className="block text-sm font-medium text-foreground">Link</label>
                   <input
                     type="url"
                     value={p.link}
                     onChange={(e) => handleProjects(i, "link", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">End Date</label>
+                  <label className="block text-sm font-medium text-foreground">End Date</label>
                   <DatePicker
                     views={["month", "year"]}
                     value={p.dates ? dayjs(p.dates, "MMMM YYYY") : null}
@@ -309,22 +358,22 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                     slotProps={{
                       textField: {
                         className:
-                          "w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white",
+                          "admin-input",
                       },
                     }}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white">Description</label>
+                  <label className="block text-sm font-medium text-foreground">Description</label>
                   <textarea
                     value={p.description}
                     onChange={(e) => handleProjects(i, "description", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                     rows={3}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Technologies (press Enter after each)
                   </label>
                   <div className="flex flex-wrap gap-2 mb-2">
@@ -349,18 +398,18 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                     onChange={(e) => setTechnologievalue(e.target.value)}
                     onKeyDown={(e) => handleKeyDown(e, i, e.currentTarget.value)}
                     placeholder="Enter a technology"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="admin-input"
                   />
                 </div>
                 {/* Additional Links UI Section */}
                 <div>
-                  <label className="block text-sm font-medium text-black dark:text-white mb-1">Additional Links</label>
-                  <div className="bg-gray-200 dark:bg-gray-800 p-5 rounded-md space-y-4">
+                  <label className="block text-sm font-medium text-foreground mb-1">Additional Links</label>
+                  <div className="bg-muted/40 border border-border/40 p-5 rounded-xl space-y-4">
                     {p.links.map((l, lindex) => {
                       const linkOpen = openlinkindex === lindex
                       return (
                         <div key={lindex} className="space-y-2">
-                          <div className="flex justify-between items-center text-sm font-semibold text-black dark:text-white">
+                          <div className="flex justify-between items-center text-sm font-semibold text-foreground">
                             <span>Link {lindex + 1}</span>
                             <button
                               className="text-blue-600 hover:underline focus:outline-none"
@@ -370,27 +419,27 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                             </button>
                           </div>
                           {linkOpen && (
-                            <div className="p-4 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-700 space-y-3">
+                            <div className="p-4 bg-card/60 rounded-xl border border-border/40 space-y-3">
                               <div>
-                                <label className="block text-xs font-medium text-black dark:text-white mb-1">
+                                <label className="block text-xs font-medium text-foreground mb-1">
                                   Link Type
                                 </label>
                                 <input
                                   placeholder="e.g. GitHub"
                                   value={l.type}
                                   onChange={(e) => handleProjectslinks(i, lindex, "type", e.target.value)}
-                                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                                  className="admin-input"
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium text-black dark:text-white mb-1">
+                                <label className="block text-xs font-medium text-foreground mb-1">
                                   Link URL
                                 </label>
                                 <input
                                   placeholder="Enter URL"
                                   value={l.link}
                                   onChange={(e) => handleProjectslinks(i, lindex, "link", e.target.value)}
-                                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                                  className="admin-input"
                                 />
                               </div>
                             </div>
@@ -400,7 +449,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                     })}
                     <button
                       onClick={() => addNewLink(i)}
-                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                      className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition text-sm"
                     >
                       + Add More Links
                     </button>
@@ -408,7 +457,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                 </div>
                 {/* Video Upload for Project */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-black dark:text-white">Project Video</label>
+                  <label className="block text-sm font-medium text-foreground">Project Video</label>
                   <VideoUpload
                     videoInfo={p.video}
                     projectIndex={i}
@@ -420,7 +469,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
 
                 {/* Case Study Section */}
                 <div className="space-y-4 border-t border-gray-300 dark:border-gray-700 pt-4 mt-4">
-                  <h2 className="text-lg font-bold text-black dark:text-white">Case Study Details</h2>
+                  <h2 className="text-lg font-bold text-foreground">Case Study Details</h2>
                   {p.caseStudy?.projectOverview ||
                   p.caseStudy?.youtubeVideoUrl ||
                   p.caseStudy?.keyFeatures?.length > 0 ||
@@ -439,29 +488,29 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                   )}
                   {/* YouTube Video URL */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white">YouTube Video URL</label>
+                    <label className="block text-sm font-medium text-foreground">YouTube Video URL</label>
                     <input
                       type="url"
                       value={p.caseStudy?.youtubeVideoUrl || ""}
                       onChange={(e) => handleCaseStudy(i, "youtubeVideoUrl", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                      className="admin-input"
                       placeholder="https://www.youtube.com/watch?v=..."
                     />
                   </div>
                   {/* Project Overview */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white">Project Overview</label>
+                    <label className="block text-sm font-medium text-foreground">Project Overview</label>
                     <textarea
                       value={p.caseStudy?.projectOverview || ""}
                       onChange={(e) => handleCaseStudy(i, "projectOverview", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                      className="admin-input"
                       placeholder="Detailed overview of the project"
                       rows={5}
                     />
                   </div>
                   {/* Key Features */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-black dark:text-white">Key Features</label>
+                    <label className="block text-sm font-medium text-foreground">Key Features</label>
                     <div className="flex flex-wrap gap-2 mb-2">
                       {p.caseStudy?.keyFeatures?.map((feature, idx) => (
                         <div
@@ -484,11 +533,11 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                         value={keyFeatureValue}
                         onChange={(e) => setKeyFeatureValue(e.target.value)}
                         placeholder="Add a key feature"
-                        className="flex-grow px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                        className="flex-grow admin-input"
                       />
                       <button
                         onClick={() => handleAddKeyFeature(i)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                        className="bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90 transition text-sm"
                       >
                         Add
                       </button>
@@ -496,7 +545,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                   </div>
                   {/* Database Architecture Image */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Database Architecture Image
                     </label>
                     <ImageUpload
@@ -506,7 +555,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                   </div>
                   {/* System Architecture Image */}
                   <div>
-                    <label className="block text-sm font-medium text-black dark:text-white mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       System Architecture Image
                     </label>
                     <ImageUpload
@@ -516,10 +565,10 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                   </div>
                   {/* System Architecture */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-black dark:text-white">System Architecture</label>
+                    <label className="block text-sm font-medium text-foreground">System Architecture</label>
                     {p.caseStudy?.systemArchitecture?.map((arch, idx) => (
                       <div key={idx} className="border border-gray-300 dark:border-gray-700 rounded-md p-3 space-y-2">
-                        <h4 className="font-semibold text-black dark:text-white">{arch.title}</h4>
+                        <h4 className="font-semibold text-foreground">{arch.title}</h4>
                         <p className="text-sm text-muted-foreground">{arch.description}</p>
                         <button
                           onClick={() => handleDeleteSystemArchitecture(i, idx)}
@@ -535,18 +584,18 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                         value={systemArchitectureTitle}
                         onChange={(e) => setSystemArchitectureTitle(e.target.value)}
                         placeholder="Architecture Title (e.g., Frontend)"
-                        className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                        className="admin-input"
                       />
                       <textarea
                         value={systemArchitectureDescription}
                         onChange={(e) => setSystemArchitectureDescription(e.target.value)}
                         placeholder="Architecture Description"
                         rows={3}
-                        className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                        className="admin-input"
                       />
                       <button
                         onClick={() => handleAddSystemArchitecture(i)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                        className="bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90 transition text-sm"
                       >
                         Add Architecture
                       </button>
@@ -554,12 +603,12 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                   </div>
                   {/* Challenges & Solutions */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-black dark:text-white">
+                    <label className="block text-sm font-medium text-foreground">
                       Challenges & Solutions
                     </label>
                     {p.caseStudy?.challengesAndSolutions?.map((cs, idx) => (
                       <div key={idx} className="border border-gray-300 dark:border-gray-700 rounded-md p-3 space-y-2">
-                        <h4 className="font-semibold text-black dark:text-white">{cs.title}</h4>
+                        <h4 className="font-semibold text-foreground">{cs.title}</h4>
                         <p className="text-sm text-muted-foreground">
                           <strong>Challenge:</strong> {cs.challenge}
                         </p>
@@ -580,25 +629,25 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
                         value={challengeTitle}
                         onChange={(e) => setChallengeTitle(e.target.value)}
                         placeholder="Challenge Title (e.g., Real-time Communication)"
-                        className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                        className="admin-input"
                       />
                       <textarea
                         value={challengeDescription}
                         onChange={(e) => setChallengeDescription(e.target.value)}
                         placeholder="Challenge Description"
                         rows={2}
-                        className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                        className="admin-input"
                       />
                       <textarea
                         value={solutionDescription}
                         onChange={(e) => setSolutionDescription(e.target.value)}
                         placeholder="Solution Description"
                         rows={2}
-                        className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
+                        className="admin-input"
                       />
                       <button
                         onClick={() => handleAddChallengeSolution(i)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                        className="bg-primary text-primary-foreground px-4 py-2 rounded-full hover:bg-primary/90 transition text-sm"
                       >
                         Add Challenge/Solution
                       </button>
@@ -612,7 +661,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
       })}
       <button
         onClick={addProject}
-        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+        className="w-full bg-primary text-primary-foreground py-2 rounded-full hover:bg-primary/90 transition duration-200 font-medium"
       >
         + Add More Project
       </button>
@@ -621,13 +670,13 @@ const Projects: React.FC<ProjectsProps> = ({ projects, active, setActive, setPro
       <div className="pt-6 flex justify-between">
         <button
           onClick={handleBack}
-          className="bg-black dark:bg-white text-white dark:text-black py-2 px-4 rounded-md hover:opacity-90 transition duration-200 font-semibold"
+          className="bg-secondary text-secondary-foreground py-2 px-4 rounded-full hover:bg-secondary/80 transition duration-200 font-semibold"
         >
           ← Back
         </button>
         <button
           onClick={handleNext}
-          className="bg-black dark:bg-white text-white dark:text-black py-2 px-4 rounded-md hover:opacity-90 transition duration-200 font-semibold"
+          className="bg-secondary text-secondary-foreground py-2 px-4 rounded-full hover:bg-secondary/80 transition duration-200 font-semibold"
         >
           Save Projects Data
         </button>

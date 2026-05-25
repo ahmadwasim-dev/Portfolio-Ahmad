@@ -1,9 +1,9 @@
 import mongoose from "mongoose"
 
-const MONGODB_URI: any = process.env.MONGODB_URI
-
 export const connectDB = async () => {
   try {
+    const MONGODB_URI: any = process.env.MONGODB_URI
+
     // Skip connection if MONGODB_URI is not set
     if (!MONGODB_URI) {
       console.warn("MONGODB_URI not set, using fallback data only")
