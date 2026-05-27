@@ -20,6 +20,7 @@ import Meteors from "@/components/ui/meteors"
 import { BackgroundBeams } from "@/components/ui/background-beams"
 import { LampContainer } from "@/components/ui/lamp"
 import { motion } from "framer-motion"
+import { ParticleLoader } from "@/components/ParticleLoader"
 
 // Lazy load below-the-fold sections
 const ProjectsSection = dynamic(() => import("@/components/ProjectsSection"), {
@@ -253,7 +254,23 @@ const getSkillLogo = (name: string) => {
 
 export default function Page() {
   const dispatch: any = useDispatch()
-  const { DATA, loading, error } = useSelector((state: any) => state.PortfolioData)
+  const { DATA, loading: reduxLoading, error } = useSelector((state: any) => state.PortfolioData)
+  
+  // Custom loading state that guarantees the 4.5s animation plays fully
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Start fetching data
+    dispatch(loadData())
+    
+    // Ensure the loader stays visible for exactly 4.5s
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 4500);
+
+    return () => clearTimeout(timer);
+  }, [dispatch])
+
   useEffect(() => {
     if (loading) {
       document.body.classList.add("no-scroll")
@@ -265,20 +282,9 @@ export default function Page() {
       document.body.classList.remove("no-scroll")
     }
   }, [loading])
-  useEffect(() => {
-    dispatch(loadData())
-  }, [dispatch])
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="flex flex-col items-center space-y-6">
-          <div className="relative">
-            <span className="inline-flex items-center justify-center w-20 h-20 text-5xl font-black text-white bg-black rounded-full shadow-lg animate-bounce">ah</span>
-          </div>
-          <p className="text-lg font-medium text-muted-foreground animate-pulse">Loading portfolio...</p>
-        </div>
-      </div>
-    )
+
+  if (loading || (reduxLoading && !error)) {
+    return <ParticleLoader />
   }
   if (!DATA) {
     return (

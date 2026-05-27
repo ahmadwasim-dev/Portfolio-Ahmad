@@ -11,7 +11,7 @@ export const DATA = {
   summary:
     "I am a BS IT student at the University of Education Lahore with over 2 years of experience in software development. I specialize in Flutter app development and also have hands-on experience in full-stack development using the MERN stack (MongoDB, Express.js, React, Node.js). In addition, I have completed Python-based development work and have strong problem-solving skills across multiple technologies. I have built real-world projects including mobile applications, IoT systems, and service-based platforms. My focus is on developing scalable, efficient, and user-friendly applications while continuously improving my technical expertise.",
   avatarUrl: "/ahmad.jpg",
-  resumeUrl: "/Ahmad.pdf",
+  resumeUrl: "/CV.pdf",
 
   skills: [
     "Flutter",

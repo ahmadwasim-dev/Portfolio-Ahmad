@@ -18,6 +18,8 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
     "@reduxjs/toolkit": "^2.8.2",
     "@types/mdx": "^2.0.13",
     "bcryptjs": "^3.0.2",
@@ -46,6 +48,7 @@
     "shiki": "^1.7.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.184.0",
     "unified": "^11.0.4"
   },
   "devDependencies": {
