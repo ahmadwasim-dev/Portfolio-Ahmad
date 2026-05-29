@@ -33,6 +33,9 @@
       --ring: 262 83% 58%;
 
       --radius: 1.25rem;
+      
+      --font-bebas: 'Bebas Neue', sans-serif;
+      --font-cormorant: 'Cormorant Garamond', serif;
     }
 
     .dark {

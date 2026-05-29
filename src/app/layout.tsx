@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DATA } from "@/data/resume";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Inter as FontSans } from "next/font/google";
+import { Inter as FontSans, Bebas_Neue, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import Localization from "@/components/Localization";
 import { ReduxProvider } from "@/redux/provider";
@@ -13,6 +13,18 @@ import CursorFollower from "@/components/ui/cursor-follower";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
+});
+
+const bebasNeue = Bebas_Neue({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-bebas",
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400"],
+  variable: "--font-cormorant",
 });
 
 export const metadata: Metadata = {
@@ -60,7 +72,9 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
+          bebasNeue.variable,
+          cormorantGaramond.variable
         )}
       >
         {/* ✅ Wrap with ReduxProvider */}

@@ -1,325 +1,386 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useState, useRef } from "react";
 
 const BG_COLOR = "#edeae2";
 const TEXT_COLOR = "#1a1816";
 
-interface Bird {
-  id: number;
-  delay: number;
-}
-
-const generateBirds = (): Bird[] => {
-  return Array.from({ length: 6 }, (_, i) => ({
-    id: i,
-    delay: [1500, 3200, 5000, 2400, 6500, 8000][i],
-  }));
-};
-
 export const ParticleLoader = () => {
-  const [stage, setStage] = useState<"loading" | "reveal" | "done">("loading");
   const [progress, setProgress] = useState(0);
-  const [showEnter, setShowEnter] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const cursorCanvasRef = useRef<HTMLCanvasElement>(null);
-  const splitTopRef = useRef<HTMLDivElement>(null);
-  const splitBotRef = useRef<HTMLDivElement>(null);
-  const loaderRef = useRef<HTMLDivElement>(null);
+  const [showBtn, setShowBtn] = useState(false);
+  const [done, setDone] = useState(false);
 
-  const birds = useMemo(() => generateBirds(), []);
-  const cursorTrailRef = useRef<Array<{ x: number; y: number; age: number }>>([]);
+  const moonRef = useRef<HTMLDivElement>(null);
+  const bcRef = useRef<HTMLCanvasElement>(null);
+  const ccRef = useRef<HTMLCanvasElement>(null);
+  const ctRef = useRef<HTMLDivElement>(null);
+  const cbRef = useRef<HTMLDivElement>(null);
 
-  // Progress bar animation
   useEffect(() => {
-    if (stage !== "loading") return;
+    // Setup canvas
+    const bc = bcRef.current;
+    const cc = ccRef.current;
+    if (!bc || !cc) return;
 
+    bc.width = cc.width = window.innerWidth;
+    bc.height = cc.height = window.innerHeight;
+
+    const bx = bc.getContext("2d");
+    const cx = cc.getContext("2d");
+    if (!bx || !cx) return;
+
+    // Progress animation
     let pct = 0;
     const tick = setInterval(() => {
       const spd =
-        pct < 60
-          ? 1.3 + Math.random() * 1.7
-          : pct < 85
-          ? 0.5 + Math.random() * 0.9
-          : 0.18 + Math.random() * 0.32;
-
+        pct < 60 ? 1.4 + Math.random() * 1.6 : pct < 85 ? 0.5 + Math.random() * 0.9 : 0.2 + Math.random() * 0.3;
       pct = Math.min(pct + spd, 100);
       setProgress(Math.floor(pct));
 
       if (pct >= 100) {
         clearInterval(tick);
-        setTimeout(() => setShowEnter(true), 500);
+        setDone(true);
+        setTimeout(() => setShowBtn(true), 500);
       }
     }, 75);
 
-    return () => clearInterval(tick);
-  }, [stage]);
+    // Mouse tracking
+    let mx = window.innerWidth / 2;
+    let my = window.innerHeight / 2;
+    const trail: { x: number; y: number }[] = [];
 
-  // Reveal animation
-  useEffect(() => {
-    const t1 = setTimeout(() => {
-      setStage("reveal");
-    }, 8000); // Auto-reveal after 8 seconds
-
-    return () => clearTimeout(t1);
-  }, []);
-
-  // Mouse tracking
-  useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-      cursorTrailRef.current.push({ x: e.clientX, y: e.clientY, age: 0 });
-      if (cursorTrailRef.current.length > 18) cursorTrailRef.current.shift();
+      mx = e.clientX;
+      my = e.clientY;
+      trail.push({ x: mx, y: my });
+      if (trail.length > 22) trail.shift();
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
-  // Canvas rendering
-  useEffect(() => {
-    const cvs = canvasRef.current;
-    if (!cvs) return;
+    // Animation loop
+    let raf: number;
+    const loop = () => {
+      cx.clearRect(0, 0, cc.width, cc.height);
 
-    const handleResize = () => {
-      cvs.width = window.innerWidth;
-      cvs.height = window.innerHeight;
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Cursor canvas rendering
-  useEffect(() => {
-    const cursorCvs = cursorCanvasRef.current;
-    if (!cursorCvs) return;
-
-    const handleResize = () => {
-      cursorCvs.width = window.innerWidth;
-      cursorCvs.height = window.innerHeight;
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    const ctx = cursorCvs.getContext("2d");
-    if (!ctx) return;
-
-    const animationFrameId = requestAnimationFrame(function render() {
-      ctx.clearRect(0, 0, cursorCvs.width, cursorCvs.height);
-
-      // Draw trail
-      for (let i = 0; i < cursorTrailRef.current.length; i++) {
-        const pt = cursorTrailRef.current[i];
-        const frac = i / cursorTrailRef.current.length;
-        const alpha = Math.pow(frac, 1.8) * 0.45;
-        const r = 3 + frac * 9;
-
-        const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r * 2.5);
-        grd.addColorStop(0, `rgba(26,24,22,${alpha})`);
-        grd.addColorStop(0.4, `rgba(26,24,22,${alpha * 0.35})`);
-        grd.addColorStop(1, "rgba(26,24,22,0)");
-
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, r * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = grd;
-        ctx.fill();
+      // Draw cursor trail
+      for (let i = 0; i < trail.length; i++) {
+        const p = trail[i];
+        const f = i / trail.length;
+        const a = Math.pow(f, 2) * 0.38;
+        const r = (2 + f * 9) * 2.2;
+        const g = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+        g.addColorStop(0, `rgba(26,24,22,${a})`);
+        g.addColorStop(1, "rgba(26,24,22,0)");
+        cx.beginPath();
+        cx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        cx.fillStyle = g;
+        cx.fill();
       }
 
-      // Outer glow
-      const og = ctx.createRadialGradient(
-        mousePos.x,
-        mousePos.y,
-        6,
-        mousePos.x,
-        mousePos.y,
-        22
-      );
-      og.addColorStop(0, "rgba(26,24,22,0.08)");
-      og.addColorStop(1, "rgba(26,24,22,0)");
-      ctx.beginPath();
-      ctx.arc(mousePos.x, mousePos.y, 22, 0, Math.PI * 2);
-      ctx.fillStyle = og;
-      ctx.fill();
+      // Draw cursor dot
+      cx.beginPath();
+      cx.arc(mx, my, 5, 0, Math.PI * 2);
+      cx.fillStyle = TEXT_COLOR;
+      cx.fill();
 
-      // Main dot
-      ctx.beginPath();
-      ctx.arc(mousePos.x, mousePos.y, 5.5, 0, Math.PI * 2);
-      ctx.fillStyle = TEXT_COLOR;
-      ctx.fill();
-
-      requestAnimationFrame(render);
-    });
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener("resize", handleResize);
+      clearInterval(tick);
+      window.removeEventListener("mousemove", handleMouseMove);
+      cancelAnimationFrame(raf);
     };
-  }, [mousePos]);
+  }, []);
 
-  const handleReveal = () => {
-    if (stage !== "loading" || !showEnter) return;
-
-    setStage("reveal");
-
+  const handleEnter = () => {
+    if (!done) return;
+    if (ctRef.current && cbRef.current) {
+      ctRef.current.style.transform = "translateY(-100%)";
+      cbRef.current.style.transform = "translateY(100%)";
+    }
     setTimeout(() => {
-      if (splitTopRef.current && splitBotRef.current) {
-        splitTopRef.current.style.transform = "translateY(-100%)";
-        splitBotRef.current.style.transform = "translateY(100%)";
+      const loader = document.querySelector("[data-loader]");
+      if (loader?.parentNode) {
+        loader.parentNode.removeChild(loader);
       }
-
-      setTimeout(() => {
-        setStage("done");
-        if (loaderRef.current) {
-          loaderRef.current.remove();
-        }
-      }, 1100);
-    }, 220);
+    }, 1500);
   };
-
-  if (stage === "done") {
-    return null;
-  }
 
   return (
     <div
-      ref={loaderRef}
-      className="fixed inset-0 z-50 overflow-hidden cursor-none"
-      style={{ background: BG_COLOR }}
+      data-loader
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        background: BG_COLOR,
+        cursor: "none",
+        overflow: "hidden",
+      }}
     >
-      {/* Split screen panels */}
-      <motion.div
-        ref={splitTopRef}
-        className="fixed left-0 top-0 w-full h-1/2 z-[99998]"
-        style={{ background: BG_COLOR }}
-        initial={{ transform: "translateY(0)" }}
-        animate={stage === "reveal" ? { transform: "translateY(-100%)" } : {}}
-        transition={{ duration: 1, ease: "easeInOut" }}
+      {/* Curtains */}
+      <div
+        ref={ctRef}
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          width: "100%",
+          height: "50%",
+          background: BG_COLOR,
+          zIndex: 50,
+          transform: "translateY(0)",
+          transition: "transform 1.15s cubic-bezier(.77,0,.175,1)",
+        }}
       />
-      <motion.div
-        ref={splitBotRef}
-        className="fixed left-0 bottom-0 w-full h-1/2 z-[99998]"
-        style={{ background: BG_COLOR }}
-        initial={{ transform: "translateY(0)" }}
-        animate={stage === "reveal" ? { transform: "translateY(100%)" } : {}}
-        transition={{ duration: 1, ease: "easeInOut" }}
+      <div
+        ref={cbRef}
+        style={{
+          position: "fixed",
+          left: 0,
+          bottom: 0,
+          width: "100%",
+          height: "50%",
+          background: BG_COLOR,
+          zIndex: 50,
+          transform: "translateY(0)",
+          transition: "transform 1.15s cubic-bezier(.77,0,.175,1)",
+        }}
       />
 
-      {/* Cursor canvas - always on top */}
+      {/* Canvases */}
       <canvas
-        ref={cursorCanvasRef}
-        className="fixed inset-0 pointer-events-none z-[999999]"
+        ref={bcRef}
+        style={{
+          position: "fixed",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 109,
+        }}
+      />
+      <canvas
+        ref={ccRef}
+        style={{
+          position: "fixed",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 500,
+        }}
       />
 
-      {/* Main content */}
-      <div className="fixed inset-0 flex items-center justify-center z-30 pointer-events-none">
-        {/* Mountain terrain */}
-        <motion.svg
-          viewBox="0 0 1440 260"
-          preserveAspectRatio="none"
-          className="absolute w-full h-1/3 bottom-0 left-0 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <motion.path
-            d="M-10,200 L60,195 L100,188 L140,192 L175,168 L195,172 L230,145 L248,152 L268,118 L282,124 L295,105 L308,110 L322,88 L335,95 L348,112 L362,108 L378,130 L400,126 L430,138 L460,132 L488,148 L510,144 L535,158 L558,152 L578,142 L600,148 L618,132 L638,118 L652,124 L665,108 L678,114 L692,96 L704,102 L716,85 L726,90 L736,75 L745,80 L754,88 L764,82 L778,72 L790,78 L804,92 L820,86 L842,100 L865,94 L890,108 L915,104 L940,118 L962,112 L985,128 L1008,122 L1032,112 L1055,118 L1075,105 L1092,110 L1108,95 L1122,100 L1138,112 L1155,108 L1175,122 L1198,118 L1225,132 L1252,126 L1278,140 L1305,136 L1335,148 L1365,144 L1400,155 L1440,152 L1450,152"
-            fill="none"
-            stroke={TEXT_COLOR}
-            strokeWidth="1"
-            initial={{ strokeDasharray: 4000, strokeDashoffset: 4000 }}
-            animate={{ strokeDashoffset: 0 }}
-            transition={{ duration: 5.2, delay: 0.4 }}
-          />
-        </motion.svg>
+      {/* Moon */}
+      <div
+        ref={moonRef}
+        style={{
+          position: "fixed",
+          width: "130px",
+          height: "130px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle at 40% 40%,
+            rgba(220,215,202,.75) 0%,
+            rgba(210,205,192,.5) 30%,
+            rgba(225,220,210,.22) 60%,
+            transparent 80%)`,
+          boxShadow: `0 0 0 1px rgba(155,150,138,.2),
+            0 0 32px 10px rgba(190,185,172,.16),
+            inset -6px -5px 14px rgba(175,170,158,.1)`,
+          left: "50%",
+          top: "30%",
+          transform: "translate(-50%, -50%)",
+          pointerEvents: "none",
+          zIndex: 110,
+          opacity: 1,
+          animation: "fadeIn 2s ease 0.12s forwards",
+        }}
+      />
 
-        {/* Moon */}
-        <motion.div
-          className="absolute w-32 h-32 rounded-full"
-          style={{
-            background: `radial-gradient(circle at 42% 42%, rgba(215,210,198,0.72), rgba(208,203,191,0.55) 25%, rgba(220,215,205,0.28) 55%, rgba(237,234,226,0))`,
-            boxShadow: `
-              0 0 0 1px rgba(160,155,143,0.22),
-              0 0 28px 8px rgba(190,185,173,0.18),
-              inset -8px -6px 18px rgba(180,175,162,0.12)
-            `,
-          }}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-        />
-
-        {/* Title */}
-        <motion.h1
-          className="relative text-9xl font-black tracking-wider pointer-events-auto select-none z-10"
-          style={{
-            color: TEXT_COLOR,
-            fontFamily: "'Bebas Neue', sans-serif",
-            letterSpacing: "0.04em",
-            cursor: "none",
-          }}
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          onClick={handleReveal}
-        >
-          AHMAD
-        </motion.h1>
-
-        {/* Progress bar */}
-        <motion.div
-          className="absolute bottom-10 left-12 right-12 flex items-center justify-between"
-          style={{ zIndex: 6 }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
-        >
-          <div className="flex items-center gap-4">
-            <span
-              className="text-xs font-light tracking-widest"
-              style={{ color: "#9c9890", minWidth: "28px" }}
-            >
-              {progress}
-            </span>
-            <div className="w-28 h-px relative" style={{ background: "#d6d2c9" }}>
-              <div
-                className="h-full transition-all duration-75"
-                style={{ width: `${progress}%`, background: TEXT_COLOR }}
-              />
-              <div
-                className="absolute w-2 h-2 rounded-full -top-1.5 -translate-x-1/2 transition-all duration-75"
-                style={{ left: `${progress}%`, background: TEXT_COLOR }}
-              />
-            </div>
-          </div>
-
-          <motion.button
-            className="text-xs font-light tracking-widest border-none bg-none p-0"
-            style={{ color: "#9c9890", cursor: "none" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: showEnter ? 1 : 0 }}
-            transition={{ duration: 1 }}
-            onClick={handleReveal}
-            onMouseEnter={(e) => {
-              (e.target as HTMLElement).style.color = TEXT_COLOR;
-              (e.target as HTMLElement).style.letterSpacing = "0.17em";
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLElement).style.color = "#9c9890";
-              (e.target as HTMLElement).style.letterSpacing = "0.055em";
-            }}
-          >
-            CLICK TO ENTER
-          </motion.button>
-        </motion.div>
+      {/* Top label */}
+      <div
+        style={{
+          position: "fixed",
+          top: "42px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: "10px",
+          fontWeight: 300,
+          letterSpacing: ".6em",
+          color: "#9c9890",
+          textTransform: "uppercase",
+          pointerEvents: "none",
+          zIndex: 110,
+          opacity: 1,
+          animation: "fadeIn 1.4s ease 0.32s forwards",
+        }}
+      >
+        Portfolio — Ahmad
       </div>
 
-      {/* Canvas for birds */}
-      <canvas ref={canvasRef} className="absolute inset-0 z-10 pointer-events-none" />
+      {/* Mountain terrain */}
+      <svg
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        style={{
+          position: "fixed",
+          width: "100%",
+          top: "58%",
+          pointerEvents: "none",
+          zIndex: 108,
+          opacity: 1,
+          animation: "fadeIn 1.6s ease 0.38s forwards",
+        }}
+      >
+        <defs>
+          <linearGradient id="mg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#c8c4bb" stopOpacity="1" />
+            <stop offset="100%" stopColor="#edeae2" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M0,320 L0,240 L40,238 L80,230 L120,235 L155,210 L178,215 L210,185 L228,192 L248,158 L264,165 L280,138 L295,144 L310,115 L322,120 L334,100 L346,106 L358,118 L370,113 L388,135 L415,130 L445,145 L472,139 L500,155 L525,149 L548,142 L568,148 L586,135 L605,120 L620,127 L634,110 L648,116 L662,98 L674,104 L686,86 L696,91 L706,75 L714,80 L722,68 L730,73 L738,82 L746,77 L756,65 L764,70 L776,85 L790,79 L808,94 L828,88 L852,104 L876,98 L900,112 L924,106 L950,122 L974,116 L998,130 L1020,124 L1044,114 L1066,120 L1086,106 L1102,112 L1118,96 L1132,102 L1148,115 L1164,109 L1182,124 L1204,118 L1230,133 L1256,127 L1282,142 L1308,136 L1338,150 L1368,144 L1404,158 L1440,152 L1440,320 Z"
+          fill="url(#mg)"
+          opacity="0.5"
+        />
+        <path
+          d="M0,240 L40,238 L80,230 L120,235 L155,210 L178,215 L210,185 L228,192 L248,158 L264,165 L280,138 L295,144 L310,115 L322,120 L334,100 L346,106 L358,118 L370,113 L388,135 L415,130 L445,145 L472,139 L500,155 L525,149 L548,142 L568,148 L586,135 L605,120 L620,127 L634,110 L648,116 L662,98 L674,104 L686,86 L696,91 L706,75 L714,80 L722,68 L730,73 L738,82 L746,77 L756,65 L764,70 L776,85 L790,79 L808,94 L828,88 L852,104 L876,98 L900,112 L924,106 L950,122 L974,116 L998,130 L1020,124 L1044,114 L1066,120 L1086,106 L1102,112 L1118,96 L1132,102 L1148,115 L1164,109 L1182,124 L1204,118 L1230,133 L1256,127 L1282,142 L1308,136 L1338,150 L1368,144 L1404,158 L1440,152"
+          fill="none"
+          stroke="#b0aca3"
+          strokeWidth="1.2"
+          style={{
+            strokeDasharray: "3800",
+            strokeDashoffset: "3800",
+            animation: "ridgeDraw 5s cubic-bezier(.4,0,.2,1) 0.38s forwards",
+          }}
+        />
+      </svg>
+
+      {/* Title */}
+      <h1
+        onClick={handleEnter}
+        style={{
+          position: "fixed",
+          left: "50%",
+          top: "58%",
+          transform: "translateX(-50%) translateY(-100%)",
+          fontFamily: "'Bebas Neue', sans-serif",
+          fontSize: "clamp(80px, 13vw, 172px)",
+          letterSpacing: ".04em",
+          color: TEXT_COLOR,
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+          margin: 0,
+          padding: 0,
+          zIndex: 110,
+          userSelect: "none",
+          opacity: 1,
+          animation: "fadeIn 1.3s ease 0.5s forwards",
+        }}
+      >
+        AHMAD
+      </h1>
+
+      {/* Progress bar */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "36px",
+          left: "48px",
+          right: "48px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          zIndex: 120,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "16px",
+            opacity: 1,
+            animation: "fadeIn 1s ease 0.9s forwards",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: "11px",
+              fontWeight: 300,
+              letterSpacing: ".22em",
+              color: "#9c9890",
+              minWidth: "26px",
+            }}
+          >
+            {progress}
+          </span>
+          <div style={{ width: "200px", height: "1px", background: "#d4d0c7", position: "relative" }}>
+            <div
+              style={{
+                height: "100%",
+                background: TEXT_COLOR,
+                width: `${progress}%`,
+                transition: "width .07s linear",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "-3.5px",
+                left: `${progress}%`,
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                background: TEXT_COLOR,
+                transform: "translateX(-50%)",
+                transition: "left .07s linear",
+              }}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={handleEnter}
+          style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: "10px",
+            fontWeight: 300,
+            letterSpacing: ".55em",
+            color: "#9c9890",
+            textTransform: "uppercase",
+            opacity: showBtn ? 1 : 0,
+            cursor: "pointer",
+            background: "none",
+            border: "none",
+            padding: "10px 0",
+            transition: "opacity 1s ease, color .35s, letter-spacing .35s",
+            pointerEvents: showBtn ? "auto" : "none",
+          }}
+          onMouseEnter={(e) => {
+            (e.target as HTMLElement).style.color = TEXT_COLOR;
+            (e.target as HTMLElement).style.letterSpacing = ".7em";
+          }}
+          onMouseLeave={(e) => {
+            (e.target as HTMLElement).style.color = "#9c9890";
+            (e.target as HTMLElement).style.letterSpacing = ".55em";
+          }}
+        >
+          Click to Enter
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes ridgeDraw {
+          from { stroke-dashoffset: 3800; }
+          to { stroke-dashoffset: 0; }
+        }
+      `}</style>
     </div>
   );
 };
